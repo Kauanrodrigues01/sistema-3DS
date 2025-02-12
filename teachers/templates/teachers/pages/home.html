@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h3 class="display-6 text-center">Selecione seu professor:</h3>
+
+    <div class="row justify-content-center mt-3">
+        <form id="selection-form" method="post" action="{% url "teachers:home" %}" class="container mt-4 p-4 border rounded">
+            {% csrf_token %}
+
+            <!-- Área onde a imagem do professor será carregada -->
+            <div id="teacher-info" class="text-center mb-3" style="display: none;">
+                <p class="fw-bold">Professor Selecionado: <br><span id="teacher-name"></span></p>
+                <img id="teacher-photo" src="" alt="Foto do Professor" class="img-fluid rounded shadow-sm" style="width: 200px;">
+            </div>
+
+            <!-- Campo Email -->
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Campo Nome Completo -->
+            <div class="mb-3">
+                <label for="{{ form.student_name.id_for_label }}" class="form-label">{{ form.student_name.label }}</label>
+                {{ form.student_name }}
+                {% if form.student_name.errors %}
+                    <div class="text-danger small">{{ form.student_name.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Campo Turma -->
+            <div class="mb-3">
+                <label for="{{ form.tier.id_for_label }}" class="form-label">{{ form.tier.label }}</label>
+                {{ form.tier }}
+                {% if form.tier.errors %}
+                    <div class="text-danger small">{{ form.tier.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Campo Professor -->
+            <div class="mb-3">
+                <label for="{{ form.teacher.id_for_label }}" class="form-label">{{ form.teacher.label }}</label>
+                {{ form.teacher }}
+                {% if form.teacher.errors %}
+                    <div class="text-danger small">{{ form.teacher.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Enviar</button>
+        </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let teacherSelect = document.getElementById("id_teacher");
+        let teacherInfo = document.getElementById("teacher-info");
+        let teacherName = document.getElementById("teacher-name");
+        let teacherPhoto = document.getElementById("teacher-photo");
+
+        // Função para desabilitar professores indisponíveis
+        function updateTeacherAvailability() {
+            fetch("/api/teachers/")  // Endpoint da API que retorna os professores
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(teacher => {
+                        let option = teacherSelect.querySelector(`option[value="${teacher.id}"]`);
+                        if (option) {
+                            if (!teacher.is_available) {
+                                option.disabled = true;  // Desabilita a opção
+                                option.textContent += " (Indisponível)";  // Adiciona um aviso visual
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error("Erro ao buscar disponibilidade dos professores:", error));
+        }
+
+        // Atualiza a disponibilidade ao carregar a página
+        updateTeacherAvailability();
+
+        // Exibir informações do professor selecionado
+        teacherSelect.addEventListener("change", function() {
+            let teacherId = this.value;
+
+            if (teacherId) {
+                fetch(`/api/teacher/${teacherId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            teacherInfo.style.display = "none";
+                        } else {
+                            teacherName.textContent = data.name;
+                            teacherPhoto.src = data.photo_url;
+                            teacherInfo.style.display = "block";
+                        }
+                    })
+                    .catch(error => console.error("Erro ao buscar professor:", error));
+            } else {
+                teacherInfo.style.display = "none";
+            }
+        });
+    });
+  </script>    
+{% endblock %}
