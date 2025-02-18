@@ -15,6 +15,15 @@
                 <img id="teacher-photo" src="" alt="Foto do Professor" class="img-fluid rounded shadow-sm" style="width: 200px;">
             </div>
 
+            <!-- Campo Professor -->
+            <div class="mb-3">
+                <label for="{{ form.teacher.id_for_label }}" class="form-label">{{ form.teacher.label }}</label>
+                {{ form.teacher }}
+                {% if form.teacher.errors %}
+                    <div class="text-danger small">{{ form.teacher.errors.0 }}</div>
+                {% endif %}
+            </div>
+
             <!-- Campo Email -->
             <div class="mb-3">
                 <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
@@ -39,15 +48,6 @@
                 {{ form.tier }}
                 {% if form.tier.errors %}
                     <div class="text-danger small">{{ form.tier.errors.0 }}</div>
-                {% endif %}
-            </div>
-
-            <!-- Campo Professor -->
-            <div class="mb-3">
-                <label for="{{ form.teacher.id_for_label }}" class="form-label">{{ form.teacher.label }}</label>
-                {{ form.teacher }}
-                {% if form.teacher.errors %}
-                    <div class="text-danger small">{{ form.teacher.errors.0 }}</div>
                 {% endif %}
             </div>
 

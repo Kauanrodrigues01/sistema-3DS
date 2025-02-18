@@ -8,7 +8,7 @@ class Selection(models.Model):
         ('3DS', '3º Desenvolvimento de Sistemas'),
         ('3E', '3º Enfermagem'),
         ('3I', '3º Informática'),
-        ('3L', '3º Logística'),
+        # ('3L', '3º Logística'),
     ]
     email = models.EmailField(unique=True)
     student_name = models.CharField(max_length=255)
