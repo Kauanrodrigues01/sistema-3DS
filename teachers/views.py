@@ -22,8 +22,6 @@ def home(request):
             output_field=BooleanField()
         )
     )
-    for teacher in teachers:
-        print(f"{teacher.name}: {teacher.num_selections} seleções - Disponível: {teacher.is_available}")
     return render(request, 'teachers/pages/home.html', {'teachers': teachers, 'form': form})
 
 
