@@ -68,14 +68,22 @@
             fetch("/api/teachers/")  // Endpoint da API que retorna os professores
                 .then(response => response.json())
                 .then(data => {
+                    let unavailableOptions = [];
+        
                     data.forEach(teacher => {
                         let option = teacherSelect.querySelector(`option[value="${teacher.id}"]`);
                         if (option) {
                             if (!teacher.is_available) {
                                 option.disabled = true;  // Desabilita a opção
-                                option.textContent += " (Indisponível)";  // Adiciona um aviso visual
+                                option.textContent += " (Indisponível)";  // Adiciona aviso visual
+                                unavailableOptions.push(option);  // Armazena para mover depois
                             }
                         }
+                    });
+        
+                    // Move opções indisponíveis para o final
+                    unavailableOptions.forEach(option => {
+                        teacherSelect.appendChild(option);
                     });
                 })
                 .catch(error => console.error("Erro ao buscar disponibilidade dos professores:", error));
