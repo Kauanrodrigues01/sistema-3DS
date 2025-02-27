@@ -1,20 +1,23 @@
 from django import forms
 from .models import Selection, Teacher
+import re
 
 
 class SelectionForm(forms.ModelForm):
     class Meta:
         model = Selection
-        fields = ['teacher', 'email', 'student_name', 'tier']
+        fields = ['teacher', 'email', 'student_name', 'phone_number', 'tier']
         labels = {
-            'email': 'Seu Email',
+            'email': 'Seu Email Institucional (aluno.ce.gov.br)',
             'student_name': 'Seu Nome Completo',
             'tier': 'Sua Turma',
-            'teacher': 'Professor Desejado'
+            'teacher': 'Professor Desejado',
+            'phone_number': 'Seu Número de Telefone'
         }
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Digite seu email'}),
             'student_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite seu nome'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control student-phone', 'placeholder': 'Digite seu número de telefone'}),
             'tier': forms.Select(attrs={'class': 'form-select'}),
             'teacher': forms.Select(attrs={'class': 'form-select'})
         }
@@ -46,3 +49,18 @@ class SelectionForm(forms.ModelForm):
         if Selection.objects.filter(teacher=teacher).count() >= 9:
             raise forms.ValidationError('Este professor já foi escolhido pelo limite máximo de alunos. (9 alunos)')
         return teacher
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        phone_number = phone_number.replace('(', '').replace(')', '').replace('-', '').replace(' ', '')
+
+        # Verifica se o número está presente
+        if not phone_number:
+            raise forms.ValidationError('O número de telefone é obrigatório.')
+
+        # Expressão regular para validar os formatos 85xxxxxxxx e 85xxxxxxxxx
+        pattern = r'^85\d{8,9}$'
+
+        if not re.fullmatch(pattern, phone_number):
+            raise forms.ValidationError('O número de telefone deve estar no formato 85xxxxxxxx ou 85xxxxxxxxx.')
+        return phone_number

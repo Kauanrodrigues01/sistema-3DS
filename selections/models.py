@@ -12,6 +12,7 @@ class Selection(models.Model):
     ]
     email = models.EmailField(unique=True)
     student_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=15, null=True)
     tier = models.CharField(max_length=3, choices=TIER_CHOICES)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='selections')
 

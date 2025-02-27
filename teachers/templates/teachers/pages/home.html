@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Tamo Junto - AFS{% endblock %}
+
 {% block content %}
   <div class="container mt-4">
     <h3 class="display-6 text-center">Selecione seu professor:</h3>
 
     <div class="row justify-content-center mt-3">
-        <form id="selection-form" method="post" action="{% url "teachers:home" %}" class="container mt-4 p-4 border rounded">
+        <form id="selection-form" method="post" action="{% url 'teachers:home' %}" class="container mt-4 p-4 border rounded">
             {% csrf_token %}
 
             <!-- Área onde a imagem do professor será carregada -->
@@ -42,6 +44,15 @@
                 {% endif %}
             </div>
 
+            <!-- Campo Número de Telefone -->
+            <div class="mb-3">
+                <label for="{{ form.phone_number.id_for_label }}" class="form-label">{{ form.phone_number.label }}</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                    <div class="text-danger small">{{ form.phone_number.errors.0 }}</div>
+                {% endif %}
+            </div>
+
             <!-- Campo Turma -->
             <div class="mb-3">
                 <label for="{{ form.tier.id_for_label }}" class="form-label">{{ form.tier.label }}</label>
@@ -58,6 +69,18 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // FORMATTER PHONE NUMBER
+        const phoneInput = document.getElementById('id_phone_number');
+        phoneInput.addEventListener('input', (e) => {
+            let input = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
+            const formatted = input
+                .replace(/^(\d{2})(\d)/, '($1) $2') // Format DDD
+                .replace(/(\d{5})(\d{1,4})/, '$1-$2') // Add hyphen
+                .slice(0, 15); // Limit to max length
+            e.target.value = formatted;
+        });
+
+
         let teacherSelect = document.getElementById("id_teacher");
         let teacherInfo = document.getElementById("teacher-info");
         let teacherName = document.getElementById("teacher-name");

@@ -23,13 +23,14 @@ def download_csv_tier_report(request, tier_code):
     writer = csv.writer(response)
     
     # Escreve o cabeçalho do CSV
-    writer.writerow(["Nome do Aluno", "Email", "Turma", "Professor"])
+    writer.writerow(["Nome do Aluno", "Email", "Número de Telefone" ,"Turma", "Professor"])
 
     # Escreve os dados das seleções
     for selection in selections:
         writer.writerow([
             selection.student_name,
             selection.email,
+            selection.phone_number,
             tiers[tier_code],  # Nome completo da turma
             selection.teacher.name
         ])
@@ -51,7 +52,7 @@ def download_excel_tier_report(request, tier_code):
     sheet.title = f"Relatório {tiers[tier_code]}"  # Nome da aba no Excel
 
     # Estilização do cabeçalho
-    headers = ["Nome do Aluno", "Email", "Turma", "Professor"]
+    headers = ["Nome do Aluno", "Email", "Número de Telefone", "Turma", "Professor"]
     sheet.append(headers)
 
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
@@ -76,6 +77,7 @@ def download_excel_tier_report(request, tier_code):
         row_data = [
             selection.student_name,
             selection.email,
+            selection.phone_number,
             tiers[tier_code],  # Nome completo da turma
             selection.teacher.name
         ]
