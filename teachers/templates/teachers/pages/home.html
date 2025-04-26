@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Tamo Junto - AFS{% endblock %}
+{% block title %}Sistema 3ºDS{% endblock %}
 
 {% block content %}
   <div class="container mt-4">
-    <h3 class="display-6 text-center">Selecione seu professor:</h3>
+    <h3 class="display-6 text-center">Selecione seu horário:</h3>
 
     <div class="row justify-content-center mt-3">
         <form id="selection-form" method="post" action="{% url 'teachers:home' %}" class="container mt-4 p-4 border rounded">
@@ -79,7 +79,7 @@
         });
 
         // Atualiza a disponibilidade ao carregar a página
-        // updateTeacherAvailability();
+        updateTeacherAvailability();
     });
 </script>
 {% endblock %}

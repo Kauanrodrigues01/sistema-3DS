@@ -9,7 +9,7 @@ class SelectionForm(forms.ModelForm):
         fields = ['teacher', 'student_name',]
         labels = {
             'student_name': 'Seu Nome Completo',
-            'teacher': 'Professor Desejado',
+            'teacher': 'Horário Desejado',
         }
         widgets = {
             'student_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Digite seu nome'}),
