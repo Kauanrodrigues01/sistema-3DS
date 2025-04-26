@@ -11,27 +11,12 @@
         <form id="selection-form" method="post" action="{% url 'teachers:home' %}" class="container mt-4 p-4 border rounded">
             {% csrf_token %}
 
-            <!-- Área onde a imagem do professor será carregada -->
-            <div id="teacher-info" class="text-center mb-3" style="display: none;">
-                <p class="fw-bold">Professor Selecionado: <br><span id="teacher-name"></span></p>
-                <img id="teacher-photo" src="" alt="Foto do Professor" class="img-fluid rounded shadow-sm" style="width: 200px;">
-            </div>
-
             <!-- Campo Professor -->
             <div class="mb-3">
                 <label for="{{ form.teacher.id_for_label }}" class="form-label">{{ form.teacher.label }}</label>
                 {{ form.teacher }}
                 {% if form.teacher.errors %}
                     <div class="text-danger small">{{ form.teacher.errors.0 }}</div>
-                {% endif %}
-            </div>
-
-            <!-- Campo Email -->
-            <div class="mb-3">
-                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -44,24 +29,6 @@
                 {% endif %}
             </div>
 
-            <!-- Campo Número de Telefone -->
-            <div class="mb-3">
-                <label for="{{ form.phone_number.id_for_label }}" class="form-label">{{ form.phone_number.label }}</label>
-                {{ form.phone_number }}
-                {% if form.phone_number.errors %}
-                    <div class="text-danger small">{{ form.phone_number.errors.0 }}</div>
-                {% endif %}
-            </div>
-
-            <!-- Campo Turma -->
-            <div class="mb-3">
-                <label for="{{ form.tier.id_for_label }}" class="form-label">{{ form.tier.label }}</label>
-                {{ form.tier }}
-                {% if form.tier.errors %}
-                    <div class="text-danger small">{{ form.tier.errors.0 }}</div>
-                {% endif %}
-            </div>
-
             <button type="submit" class="btn btn-primary w-100 mt-3">Enviar</button>
         </form>
     </div>
@@ -69,22 +36,11 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // FORMATTER PHONE NUMBER
-        const phoneInput = document.getElementById('id_phone_number');
-        phoneInput.addEventListener('input', (e) => {
-            let input = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
-            const formatted = input
-                .replace(/^(\d{2})(\d)/, '($1) $2') // Format DDD
-                .replace(/(\d{5})(\d{1,4})/, '$1-$2') // Add hyphen
-                .slice(0, 15); // Limit to max length
-            e.target.value = formatted;
-        });
-
-
         let teacherSelect = document.getElementById("id_teacher");
-        let teacherInfo = document.getElementById("teacher-info");
-        let teacherName = document.getElementById("teacher-name");
-        let teacherPhoto = document.getElementById("teacher-photo");
+        let form = document.getElementById("selection-form");
+
+        // Guarda os IDs dos professores indisponíveis
+        let unavailableTeachers = new Set();
 
         // Função para desabilitar professores indisponíveis
         function updateTeacherAvailability() {
@@ -99,6 +55,7 @@
                             if (!teacher.is_available) {
                                 option.disabled = true;  // Desabilita a opção
                                 option.textContent += " (Indisponível)";  // Adiciona aviso visual
+                                unavailableTeachers.add(String(teacher.id));  // Guarda o ID como string
                                 unavailableOptions.push(option);  // Armazena para mover depois
                             }
                         }
@@ -112,30 +69,17 @@
                 .catch(error => console.error("Erro ao buscar disponibilidade dos professores:", error));
         }
 
-        // Atualiza a disponibilidade ao carregar a página
-        updateTeacherAvailability();
-
-        // Exibir informações do professor selecionado
-        teacherSelect.addEventListener("change", function() {
-            let teacherId = this.value;
-
-            if (teacherId) {
-                fetch(`/api/teacher/${teacherId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            teacherInfo.style.display = "none";
-                        } else {
-                            teacherName.textContent = data.name;
-                            teacherPhoto.src = data.photo_url;
-                            teacherInfo.style.display = "block";
-                        }
-                    })
-                    .catch(error => console.error("Erro ao buscar professor:", error));
-            } else {
-                teacherInfo.style.display = "none";
+        // Intercepta o envio do formulário para validar se o professor está disponível
+        form.addEventListener("submit", function (event) {
+            let selectedTeacherId = teacherSelect.value;
+            if (unavailableTeachers.has(selectedTeacherId)) {
+                event.preventDefault();  // Impede o envio do formulário
+                alert("O horario selecionado está indisponível. Por favor, escolha outro.");
             }
         });
+
+        // Atualiza a disponibilidade ao carregar a página
+        // updateTeacherAvailability();
     });
-  </script>    
+</script>
 {% endblock %}

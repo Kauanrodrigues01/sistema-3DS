@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from selections.forms import SelectionForm
 from .models import Teacher
-from django.db.models import Count, Case, When, Value, BooleanField
+from django.db.models import Count, Case, When, Value, BooleanField, F
+
 
 def home(request):
     """Exibe a página inicial com o formulário e a lista de professores."""
@@ -28,6 +29,7 @@ def home(request):
 def success_page(request):
     return render(request, 'teachers/pages/success_page.html')
 
+
 def get_teacher_data(request, teacher_id):
     """Retorna os dados do professor para popular a imagem via AJAX."""
     try:
@@ -39,16 +41,19 @@ def get_teacher_data(request, teacher_id):
         })
     except Teacher.DoesNotExist:
         return JsonResponse({'error': 'Professor não encontrado'}, status=404)
-    
+
+
 def get_teachers_data(request):
     teachers = Teacher.objects.annotate(
         num_selections=Count('selections'),
         is_available=Case(
-            When(num_selections__gte=9, then=Value(False)),  # Indisponível se tiver 9 ou mais seleções
+            When(num_selections__gte=F('available_quantity'), then=Value(False)),  # Indisponível se tiver mais seleçoes que o disponivel
             default=Value(True),
             output_field=BooleanField()
         )
     ).values("id", "name", "is_available")  # Pegando apenas os campos necessários
+    
+    print(teachers)
 
     return JsonResponse(list(teachers), safe=False)  # Convertendo a QuerySet em uma lista para serialização
 
