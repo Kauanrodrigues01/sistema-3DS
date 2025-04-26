@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import download_csv_tier_report, download_excel_tier_report
+from . import views
 
 urlpatterns = [
-    path('generate-report/csv/<str:tier_code>/', download_csv_tier_report, name='download_csv_tier_report'),
-    path('generate-report/excel/<str:tier_code>/', download_excel_tier_report, name='download_excel_tier_report'),
+    path('generate-report/csv/', views.download_csv_selections_report, name='download_csv_selections_report'),
+    path('generate-report/excel/', views.download_excel_selections_report, name='download_excel_selections_report'),
 ]

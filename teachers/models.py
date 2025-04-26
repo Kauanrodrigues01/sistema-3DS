@@ -11,4 +11,3 @@ class Teacher(models.Model):
     class Meta:
         verbose_name = 'Horário'
         verbose_name_plural = 'Horários'
-        

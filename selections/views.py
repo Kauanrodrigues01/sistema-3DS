@@ -4,62 +4,51 @@ from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 from django.http import HttpResponse
 from .models import Selection
 
-def download_csv_tier_report(request, tier_code):
+def download_csv_selections_report(request):
     """
-    Gera e faz o download do relatório CSV de uma turma específica.
+    Gera e faz o download do relatório CSV de todas as seleções.
     """
-    tiers = dict(Selection.TIER_CHOICES)
-
-    # Verifica se o código da turma é válido
-    if tier_code not in tiers:
-        return HttpResponse("Turma inválida.", status=400)
-
-    selections = Selection.objects.filter(tier=tier_code).select_related('teacher')
+    selections = Selection.objects.select_related('teacher')
 
     # Configura a resposta HTTP para download do CSV
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{tier_code}.csv"'
+    response['Content-Disposition'] = 'attachment; filename="selections_report.csv"'
 
     writer = csv.writer(response)
-    
+
     # Escreve o cabeçalho do CSV
-    writer.writerow(["Nome do Aluno", "Email", "Número de Telefone" ,"Turma", "Professor"])
+    writer.writerow(["Nome do Aluno", "Professor (Horário)"])
 
     # Escreve os dados das seleções
     for selection in selections:
         writer.writerow([
             selection.student_name,
-            selection.email,
-            selection.phone_number,
-            tiers[tier_code],  # Nome completo da turma
             selection.teacher.name
         ])
 
     return response
 
 
-def download_excel_tier_report(request, tier_code):
-    tiers = dict(Selection.TIER_CHOICES)
-
-    if tier_code not in tiers:
-        return HttpResponse("Turma inválida.", status=400)
-
-    selections = Selection.objects.filter(tier=tier_code).select_related('teacher')
+def download_excel_selections_report(request):
+    """
+    Gera e faz o download do relatório Excel de todas as seleções.
+    """
+    selections = Selection.objects.select_related('teacher')
 
     # Criar um arquivo Excel
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    sheet.title = f"Relatório {tiers[tier_code]}"  # Nome da aba no Excel
+    sheet.title = "Relatório de Seleções"
 
     # Estilização do cabeçalho
-    headers = ["Nome do Aluno", "Email", "Número de Telefone", "Turma", "Professor"]
+    headers = ["Nome do Aluno", "Professor (Horário)"]
     sheet.append(headers)
 
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
     header_font = Font(bold=True, color="FFFFFF")
     header_alignment = Alignment(horizontal="center", vertical="center")
 
-    for cell in sheet[1]:  
+    for cell in sheet[1]:
         cell.fill = header_fill
         cell.font = header_font
         cell.alignment = header_alignment
@@ -76,17 +65,14 @@ def download_excel_tier_report(request, tier_code):
     for row_index, selection in enumerate(selections, start=2):
         row_data = [
             selection.student_name,
-            selection.email,
-            selection.phone_number,
-            tiers[tier_code],  # Nome completo da turma
             selection.teacher.name
         ]
         sheet.append(row_data)
 
-        for cell in sheet[row_index]:  
+        for cell in sheet[row_index]:
             cell.border = thin_border
-            if row_index % 2 == 0:  # Aplica fundo alternado nas linhas pares
-                cell.fill = row_fill  
+            if row_index % 2 == 0:
+                cell.fill = row_fill
 
     # Ajustar automaticamente a largura das colunas
     for col in sheet.columns:
@@ -98,13 +84,12 @@ def download_excel_tier_report(request, tier_code):
                     max_length = max(max_length, len(str(cell.value)))
             except:
                 pass
-        sheet.column_dimensions[col_letter].width = max_length + 5  # Adiciona um espaço extra
+        sheet.column_dimensions[col_letter].width = max_length + 5
 
     # Configurar a resposta HTTP para download do Excel
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="{tier_code}.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="selections_report.xlsx"'
 
-    # Salvar o arquivo Excel na resposta HTTP
     workbook.save(response)
 
     return response
