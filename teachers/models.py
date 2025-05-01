@@ -6,7 +6,7 @@ class Teacher(models.Model):
     available_quantity = models.PositiveIntegerField(null=False, blank=False, verbose_name='Quantidade disponível')
     
     def __str__(self):
-        return self.name
+        return f'{self.name} - {self.available_quantity} formandos'
 
     class Meta:
         verbose_name = 'Horário'
