@@ -7,7 +7,7 @@ class Selection(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='selections', verbose_name='Horário')
 
     def __str__(self):
-        return f"{self.student_name} - {self.teacher.name}"
+        return f"{self.student_name}"
     
     class Meta:
         verbose_name = 'Seleção'
