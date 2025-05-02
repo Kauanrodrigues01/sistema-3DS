@@ -33,7 +33,7 @@ def download_excel_selections_report(request):
     """
     Gera e faz o download do relatório Excel de todas as seleções.
     """
-    selections = Selection.objects.select_related('teacher')
+    selections = Selection.objects.select_related('teacher').order_by('teacher__name')
 
     # Criar um arquivo Excel
     workbook = openpyxl.Workbook()
